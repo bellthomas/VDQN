@@ -34,7 +34,7 @@ class VDQN:
 
 
         def __model(self):
-            with. tf.variable_scope("prior", reuse=True):
+            with tf.variable_scope("prior", reuse=True):
                 stateX = tf.placeholder(tf.float32, [None, self.__stateSpace], name="stateX")
                 actionX = tf.placeholder(tf.int32, [None], name="actionX")
                 selected_actionX = tf.one_hot(actionX, self.__actionSpace, dtype=tf.float32)
