@@ -103,5 +103,5 @@ class VDQN:
         actSpace = environment.action_space.n
         hiddenLayers = [100, 100]
 
-        with tf.session() as session:
+        with tf.Session() as session:
             VDQN.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session)
