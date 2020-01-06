@@ -15,16 +15,16 @@ class VDQN:
             self.__actionSpace = actionSpace
             self.__hiddenLayers = hiddenLayers
             self.__nnLayers = [stateSpace] + hiddenLayers + [actionSpace]
-
             self.__session = session
             self.__optimiser = optimiser
 
             self.__tau = parameterConfig.get("tau", 1.0)
             self.__sigma = parameterConfig.get("sigma", 0.1)
-            self.__sigmaRho = parameterConfig.get("sigmaRho", None) # Wpriorsigma=None, bpriorsigma=None
+            self.__sigmaRho = parameterConfig.get("sigmaRho", None)
             
             _prior_W_sigma = parameterConfig.get("prior_W_sigma", None)
             _prior_b_sigma = parameterConfig.get("prior_b_sigma", None)
+
             with tf.variable_scope(scope):
                 self.__prior(_prior_W_sigma, _prior_b_sigma)
                 self.__model()
@@ -225,6 +225,13 @@ class VDQN:
                 self.__actionX: actions,
                 self.__actionTargets: targets
             })
+
+        def computeValue(self, observation, noise_W, noise_b):
+            variables = { self.__observation: observation }
+            for i in range(len(self.__noise_W.keys())):
+                variables[self.__noise_W[i]] = noise_W[i]
+                variables[self.__noise_b[i]] = noise_b[i]
+            return self.__session.run(self.__Q_mu, feed_dict=variables)
     
 
 
