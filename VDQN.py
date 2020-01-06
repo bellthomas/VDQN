@@ -158,12 +158,54 @@ class VDQN:
                     _index += 1
 
 
-        def __inference(self):
-            pass
+        def __inference(self, iterations=2000):
+            latentVariables = {}
+            for x in self.__W.keys():
+                latentVariables[self.__W[x]] = self.__posterior_W[x]
+            for y in self.__b.keys():
+                latentVariables[self.__b[y]] = self.__posterior_b[y]
+
+            self.__actionTargets = tf.placeholder(tf.float32, [None])
+            self.__inference = edward.KLqp(latentVariables, data={ self.__nextAction: self.__actionTargets })
+            self.__inference.initialise(
+                optimizer = self.__optimiser,
+                scale = { self.__nextAction: 1 },
+                n_iter = iterations
+            )
 
         def __assignments(self):
-            pass
+            self.__values_W_mu = { x: tf.placeholder(tf.float32, y.shape) for x, y in self.__posterior_W_mu.items() }
+            self.__values_W_rho = { x: tf.placeholder(tf.float32, y.shape) for x, y in self.__posterior_W_rho.items() }
+            self.__values_b_mu = { x: tf.placeholder(tf.float32, y.shape) for x, y in self.__posterior_b_mu.items() }
+            self.__values_b_rho = { x: tf.placeholder(tf.float32, y.shape) for x, y in self.__posterior_b_rho.items() }
+            self.__assignments = []
 
+            layers = len(self.__values_W_mu.keys())
+            _t = self.__tau
+            for _i in range(layers):
+                _alpha = self.__posterior_W_mu[_i].assign(
+                    _t * self.__values_W_mu[_i] + (1-_t) * self.__posterior_W_mu[_i]
+                )
+                _beta = self.__posterior_W_rho[_i].assign(
+                    _t * self.__values_W_rho[_i] + (1-_t) * self.__posterior_W_rho[_i]
+                )
+                _gamma = self.__posterior_b_mu[_i].assign(
+                    _t * self.__values_b_mu[_i] + (1-_t) * self.__posterior_b_mu[_i]
+                )
+                _delta = self.__posterior_b_rho[_i].assign(
+                    _t * self.__values_b_rho[_i] + (1-_t) * self.__posterior_b_rho[_i]
+                )
+                self.__assignments.extend([_alpha, _beta, _gamma, _delta])
+
+        # def assign(self):
+
+        def train(self, observation, actions, targets):
+            return self.__inference({
+                self.__stateX: observation
+                self.__actionX: actions
+                self.__actionTargets: targets
+            })
+    
         def main(self):
             pass
 
