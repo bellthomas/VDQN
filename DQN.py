@@ -39,7 +39,7 @@ class DQN:
         self.__config = config
         self.__doubleDQN = double
 
-    def __debug(self, msg : str, newlines: int = 0):
+    def __debug(self, msg: str, newlines: int = 0):
         if(self.__enableDebug):
             print("{0}DQN: {1}".format(
                 "".join(["\n" for i in range(newlines)]),

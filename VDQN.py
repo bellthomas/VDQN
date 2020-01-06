@@ -85,6 +85,13 @@ class VDQN:
         self.__enableDebug = debug
         self.__config = config
 
+    def __debug(self, msg: str, newlines: int = 0):
+        if(self.__enableDebug):
+            print("{0}VDQN: {1}".format(
+                "".join(["\n" for i in range(newlines)]),
+                msg
+            ))
+
     def run(self):
         self.__debug(self.__config.get("episodes"))
 
