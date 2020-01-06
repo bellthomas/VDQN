@@ -167,7 +167,7 @@ class VDQN:
 
             self.__actionTargets = tf.placeholder(tf.float32, [None])
             self.__inference = edward.KLqp(latentVariables, data={ self.__nextAction: self.__actionTargets })
-            self.__inference.initialise(
+            self.__inference.initialize(
                 optimizer = self.__optimiser,
                 scale = { self.__nextAction: 1 },
                 n_iter = iterations
