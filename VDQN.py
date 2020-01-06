@@ -2,6 +2,7 @@ import tensorflow as tf
 import edward
 import edward.models as edm
 import gym
+import numpy as np
 
 class VDQN:
 
