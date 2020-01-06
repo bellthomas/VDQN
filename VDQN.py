@@ -197,7 +197,27 @@ class VDQN:
                 )
                 self.__assignments.extend([_alpha, _beta, _gamma, _delta])
 
-        # def assign(self):
+        def assign(self, W_mu, W_rho, b_mu, b_rho):
+            variables = {}
+            for i in range(len(self.__posterior_W.keys())):
+                variables[self.__values_W_mu[i]] = W_mu
+                variables[self.__values_W_rho[i]] = W_rho
+                variables[self.__values_b_mu[i]] = b_mu
+                variables[self.__values_b_rho[i]] = b_rho
+            self.__session.run(self.__assignment, feed_dict=variables)
+
+        def get_assignments(self):
+            W_mu, W_rho, b_mu, b_rho = {}, {}, {}, {}
+            for i in range(len(self.__posterior_W.keys())):
+                W_mu[i] = self.__session.run(self.__posterior_W_mu[i])
+                W_rho[i] = self.__session.run(self.__posterior_W_rho[i])
+                b_mu[i] = self.__session.run(self.__posterior_b_mu[i])
+                b_rho[i] = self.__session.run(self.__posterior_b_rho[i])
+            return W_mu, W_rho, b_mu, b_rho
+
+        def update(self, _q):
+            variables = _q.get_assignments()
+            self.assign(*variables)
 
         def train(self, observation, actions, targets):
             return self.__inference({
@@ -206,8 +226,6 @@ class VDQN:
                 self.__actionTargets: targets
             })
     
-        def main(self):
-            pass
 
 
     def __init__(self, config, double=False, debug=False):
@@ -233,4 +251,4 @@ class VDQN:
         hiddenLayers = [100, 100]
 
         with tf.Session() as session:
-            VDQN.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session)
+            self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session)
