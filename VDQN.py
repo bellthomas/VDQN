@@ -201,8 +201,8 @@ class VDQN:
 
         def train(self, observation, actions, targets):
             return self.__inference({
-                self.__stateX: observation
-                self.__actionX: actions
+                self.__stateX: observation,
+                self.__actionX: actions,
                 self.__actionTargets: targets
             })
     
