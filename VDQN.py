@@ -70,7 +70,7 @@ class VDQN:
                 theta_b[_i] = self.__posterior_b_mu[_i] + tf.nn.softplus(self.__posterior_b_rho[_i]) * noise_b[_i]
 
             layers = len(theta_W.keys())
-            activation = tf.nn.relu(tf.einsum('ij,ijk->ik', observation, theta_W[0]) + theta_b[0])
+            activation = tf.nn.relu(tf.einsum('ij,ijk->ik', self.__observation, theta_W[0]) + theta_b[0])
             for _i in range(1, layers-1):
                 activation = tf.nn.relu(tf.einsum('ij,ijk->ik', activation, theta_W[_i]) + theta_b[_i])
             activation = tf.nn.relu(tf.einsum('ij,ijk->ik', activation, theta_W[layers-1]) + theta_b[layers-1])
