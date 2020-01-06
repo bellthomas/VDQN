@@ -57,7 +57,30 @@ class VDQN:
                 self.__nextAction = chosenActionDistribution
 
         def __forwardComputation(self):
-            pass
+            self.__observation = tf.placeholder(tf.float32, [None, self.__stateSpace])
+            noise_W, noise_b = {}, {}
+            theta_W, theta_b = {}, {}
+
+            for _i, W in self.__posterior_W.items():
+                noise_W[_i] = tf.placeholder(tf.float32, [None] + list(W.shape))
+                theta_W[_i] = self.__posterior_W_mu[_i] + tf.nn.softplus(self.__posterior_W_rho[_i]) * noise_W[_i]
+            
+            for _i, b in self.__posterior_b.items():
+                noise_b[_i] = tf.placeholder(tf.float32, [None] + list(b.shape))
+                theta_b[_i] = self.__posterior_b_mu[_i] + tf.nn.softplus(self.__posterior_b_rho[_i]) * noise_b[_i]
+
+            layers = len(theta_W.keys())
+            activation = tf.nn.relu(tf.einsum('ij,ijk->ik', observation, theta_W[0]) + theta_b[0])
+            for _i in range(1, layers-1):
+                activation = tf.nn.relu(tf.einsum('ij,ijk->ik', activation, theta_W[_i]) + theta_b[_i])
+            activation = tf.nn.relu(tf.einsum('ij,ijk->ik', activation, theta_W[layers-1]) + theta_b[layers-1])
+
+            self.__Q_mu = activation
+            self.__noise_W = noise_W
+            self.__noise_b = noise_b
+            self.__theta_W = theta_W
+            self.__theta_b = theta_b
+
 
         def __prior(self, W_sigma, b_sigma):
             with tf.variable_scope("prior"):
