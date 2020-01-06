@@ -6,11 +6,14 @@ from VDQN import VDQN
 from DQN import DQN
 from AlgorithmConfig import AlgorithmConfig
 
+# Envs: ["MountainCar-v0", "CartPole-v0", "CartPole-v1", "Acrobot-v1", "Tennis-v0", "AsterixNoFrameskip-v4", "Asteroids-v0"]
+
 def main():
     argparser = ArgumentParser(description='VDQN/DQN Demonstrator')
     argparser.add_argument('--algorithm', '-a', type=str, default='DQN', help='Algorithm to run')
     argparser.add_argument('--environment', type=str, default='CartPole-v0', help='OpenAI Gym Environment')
     argparser.add_argument('--episodes', '-e', type=int, default=100, help='Duration (episodes)')
+    argparser.add_argument('--timesteps', '-t', type=int, default=500, help='Duration (episodes)')
     args = argparser.parse_args()
 
     # Initialise
@@ -24,7 +27,7 @@ def main():
     np.random.seed(seed)
 
     # Logs
-    output_dir = "{}/{}/loss_{}_episodes_{}".format(
+    output_dir = "logs/{}/{}/loss_{}_episodes_{}".format(
         algorithm, args.environment, loss_rate, args.episodes
     )
     output_path = Path(output_dir)
@@ -36,7 +39,8 @@ def main():
         "output_path": output_dir_abs,
         "episodes": args.episodes,
         "environment": args.environment,
-        "post_episode": lambda x: handlePostEpisode(x)
+        "post_episode": lambda x: handlePostEpisode(x),
+        "maximum_timesteps": args.timesteps
     })
 
     switcher = {
@@ -48,11 +52,12 @@ def main():
     func()
 
 def handlePostEpisode(data):
-    print("Episode {0} (i: {1}) --- r: {2} (avg: {3})".format(
+    print("Episode {0} (i: {1}, {2} seconds) --- r: {3} (avg: {4})".format(
         data.get("episode", "-1"),
         data.get("iteration", "-1"),
+        "{:.2f}".format(data.get("duration", -1)),
         data.get("reward", "-1"),
-        data.get("meanPreviousRewards", "-1")
+        data.get("meanPreviousRewards", "-1"),
     ))
 
 if __name__ == '__main__':

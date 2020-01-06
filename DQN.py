@@ -11,6 +11,7 @@ import chainer
 import gym
 import numpy as np
 from chainer import Chain, functions, links, optimizers
+from time import time
 
 from helpers.ReplayBuffer import ReplayBuffer
 
@@ -47,7 +48,7 @@ class DQN:
 
     def __update(self, _q, _qTarget, optimiser, samples, gamma=0.99):
         """Update a Q-function with given samples and a target Q-function."""
-        self.__debug("Running update...")
+        # self.__debug("Running update...")
 
         currentStates = _q.xp.asarray(samples["states"], dtype=np.float32)
         actions = _q.xp.asarray(samples["actions"], dtype=np.int32)
@@ -84,11 +85,14 @@ class DQN:
             _qValue = _q(state).data[0]
         return int(_qValue.argmax())
 
+
     def run(self):
         self.__debug(self.__config.get("episodes"))
 
         # Build OpenAI Gym environment
         environment = gym.make(self.__config.get("environment"))
+        if hasattr(environment, 'env'):
+            environment = environment.env
         obvSpace = environment.observation_space.low.size
         actSpace = environment.action_space.n
 
@@ -101,6 +105,7 @@ class DQN:
         hiddenLayers = self.__config.get("hidden_layers")
         gamma = self.__config.get("gamma")
         networkUpdateFrequency = self.__config.get("network_update_frequency")
+        maximumNumberOfSteps = self.__config.get("maximum_timesteps")
         
         # Initialise storage queues.
         replayBuffer = ReplayBuffer(capacity = 10**6)
@@ -115,16 +120,18 @@ class DQN:
 
         # Episode loop.
         iteration = 0
+        self.__debug("Starting episode loop...")
         for episode in range(self.__config.get("episodes")):
             self.__debug("\n\n--- EPISODE {} ---".format(episode))
             currentState = environment.reset()
             episodeRewards = 0
             running = True
             timestep = 0
+            start = time()
 
             # Run an iteration of the current episode.
-            while running and timestep < environment.spec.timestep_limit:
-
+            while running and timestep < maximumNumberOfSteps:
+                self.__debug("Episode {}: Timestep {}".format(episode, timestep))
                 # Decay the epsilon value as the episode progresses.
                 epsilon = 1.0
                 if(len(replayBuffer) >= replayStartThreshold):
@@ -156,7 +163,6 @@ class DQN:
 
                 # Sample and replay minibatch if threshold reached.
                 if(len(replayBuffer) >= replayStartThreshold):
-                    self.__debug("Sampling minibatch...")
                     minibatchSamples = replayBuffer.randomSample(minibatchSize)
                     self.__update(_q, _qTarget, optimiser, minibatchSamples, gamma=gamma)
 
@@ -175,5 +181,6 @@ class DQN:
                 "episode": episode,
                 "iteration": iteration,
                 "reward": episodeRewards,
-                "meanPreviousRewards": np.mean(episodeTotals)
+                "meanPreviousRewards": np.mean(episodeTotals),
+                "duration": time() - start,
             })
