@@ -352,10 +352,10 @@ class VDQN:
                         else:
                             _qNext = functions.max(__alpha, axis=1)
 
-                        print(_qNext)
+                        print(_qNext.array)
                         print(np.max(__alpha, axis=1))
                         
-                        _qTargetValue = gamma * _qNext * (1-minibatch["completes"]) + minibatch["rewards"]
+                        _qTargetValue = gamma * _qNext.array * (1-minibatch["completes"]) + minibatch["rewards"]
                         _loss = _q.train(minibatch["states"], minibatch["actions"], _qTargetValue)
                         variationalLosses.append(_loss["loss"])
 
