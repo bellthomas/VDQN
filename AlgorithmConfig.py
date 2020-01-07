@@ -11,7 +11,7 @@ class AlgorithmConfig:
             "minimum_epsilon": initDict.get("minimum_epsilon", 0.01),
             "epsilon_decay_period": initDict.get("epsilon_decay_period", 5000),
             "reward_scaling": initDict.get("reward_scaling", 1e-2),
-            "minibatch_size": initDict.get("minibatch_size", 64),
+            "minibatch_size": initDict.get("minibatch_size", 32),
             "hidden_layers": initDict.get("hidden_layers", 100),
             "gamma": initDict.get("gamma", 0.99),
             "tau": initDict.get("tau", 1.0),
