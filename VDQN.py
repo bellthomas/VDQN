@@ -3,6 +3,8 @@ import edward
 import edward.models as edm
 import gym
 import numpy as np
+from ReplayBuffer import ReplayBuffer
+from collections import deque
 
 class VDQN:
 
@@ -215,6 +217,9 @@ class VDQN:
                 b_rho[i] = self.__session.run(self.__posterior_b_rho[i])
             return W_mu, W_rho, b_mu, b_rho
 
+        def get_shape(self):
+            return self.__shape_W, self.__shape_b
+
         def update(self, _q):
             variables = _q.get_assignments()
             self.assign(*variables)
@@ -233,6 +238,19 @@ class VDQN:
                 variables[self.__noise_b[i]] = noise_b[i]
             return self.__session.run(self.__Q_mu, feed_dict=variables)
     
+
+    class NormalSampler:
+        def __init__(self, shape_W, shape_b):
+            assert(len(shape_W) == len(shape_b))
+            self.__shape_W = shape_W
+            self.__shape_b = shape_b
+
+        def sample(self, number):
+            noise_W, noise_b = {}, {}
+            for _i in range(len(self.__shape_W)):
+                noise_W[_i] = np.random.randn(*([number] + self.__shape_W[_i]))
+                noise_b[_i] = np.random.randn(*([number] + self.__shape_b[_i]))
+            return noise_W, noise_b
 
 
     def __init__(self, config, double=False, debug=False):
@@ -255,7 +273,96 @@ class VDQN:
             environment = environment.env
         obvSpace = environment.observation_space.low.size
         actSpace = environment.action_space.n
-        hiddenLayers = [100, 100]
+
+        # Get parameter configuration.
+        replayStartThreshold = self.__config.get("replay_start_threshold")
+        minimumEpsilon = self.__config.get("minimum_epsilon")
+        epsilonDecayPeriod = self.__config.get("epsilon_decay_period") # Iterations
+        rewardScaling = self.__config.get("reward_scaling")
+        minibatchSize = self.__config.get("minibatch_size")
+        hiddenLayers = [self.__config.get("hidden_layers")] * 2
+        gamma = self.__config.get("gamma")
+        tau = self.__config.get("tau")
+        sigma = self.__config.get("sigma")
+        networkUpdateFrequency = self.__config.get("network_update_frequency")
+        maximumNumberOfSteps = self.__config.get("maximum_timesteps")
+
+        # Initialise storage queues.
+        replayBuffer = ReplayBuffer(capacity = 10**6)
+        episodeTotals = deque(maxlen = self.__config.get("episode_history_averaging"))
+        variationalLosses = deque(maxlen = self.__config.get("episode_history_averaging"))
+        bellmanLosses = deque(maxlen = self.__config.get("episode_history_averaging"))
 
         with tf.Session() as session:
-            self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session)
+            _q = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimiser(self.__config.get("loss_rate")), scope="primary")
+            _qTarget = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, scope="target")
+            _n = self.NormalSampler(*_q.get_shape())
+            session.run(tf.global_variables_initializer())
+
+            _qTarget.update(_q)
+
+            # Episode loop.
+            iteration = 0
+            self.__debug("Starting episode loop...")
+            for episode in range(self.__config.get("episodes")):
+                self.__debug("\n\n--- EPISODE {} ---".format(episode))
+                currentState = environment.reset()
+                episodeRewards = 0
+                running = True
+                timestep = 0
+                start = time()
+
+                # Run an iteration of the current episode.
+                while running and timestep < maximumNumberOfSteps:
+                    self.__debug("Episode {}: Timestep {}".format(episode, timestep))
+
+                    # Select action.
+                    noise_W, noise_b = _n.sample(1)
+                    _qValue = _q.computeValue(currentState[None], noise_W, noise_b)
+                    action = np.argmax(_qValue.flatten())
+
+                    # Execute the chosen action.
+                    nextState, reward, completed, _ = environment.step(action)
+                    episodeRewards += reward
+                    
+                    # Save the experience.
+                    experience = ReplayBuffer.Experience(
+                        currentState, action, reward * rewardScaling, completed, nextState
+                    )
+                    replayBuffer.add(experience)
+                    currentState = nextState
+
+                    # Sample and replay minibatch if threshold reached.
+                    if(len(replayBuffer) >= replayStartThreshold):
+                        minibatch = replayBuffer.randomSample(minibatchSize)
+                        noise_W, noise_b = _n.sample(minibatchSize)
+                        _qAll = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
+                        _qTargetValue = gamma * np.max(_qAll, axis=1) * (1-minibatch["completes"]) + minibatch["rewards"]
+                        _loss = _q.train(minibatch["states"], minibatch["actions"], _qTargetValue)
+                        variationalLosses.append(_loss)
+
+                        noise_W_dup, noise_b_dup = noise_W, noise_b
+                        _prediction = _q.computeValue(minibatch["states"], noise_W_dup, noise_b_dup)
+                        _predictedAction = _prediction[minibatchSize, minibatch["actions"]]
+                        _bellmanLoss = np.mean((_predictedAction - _qTargetValue)**2)
+                        bellmanLosses.append(_bellmanLoss)
+
+                    # Update the target Q network.
+                    if iteration % networkUpdateFrequency == 0:
+                        _qTarget.update(_q)
+
+                    iteration += 1
+                    timestep += 1
+                    running = not completed
+
+                # Run post episode event handler.
+                episodeTotals.append(episodeRewards)
+                self.__config.get("post_episode")({
+                    "episode": episode,
+                    "iteration": iteration,
+                    "reward": episodeRewards,
+                    "meanPreviousRewards": np.mean(episodeTotals),
+                    "duration": time() - start,
+                    "variationalLosses": np.mean(variationalLosses),
+                    "bellmanLosses": np.mean(bellmanLosses),                    
+                })

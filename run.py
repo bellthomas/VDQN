@@ -39,7 +39,7 @@ def main():
         "output_path": output_dir_abs,
         "episodes": args.episodes,
         "environment": args.environment,
-        "post_episode": lambda x: handlePostEpisode(x),
+        "post_episode": lambda x: handlePostEpisode(x, variational=(algorithm in ["VDQN"])),
         "maximum_timesteps": args.timesteps
     })
 
@@ -51,13 +51,16 @@ def main():
     func = switcher.get(algorithm, lambda: sys.exit("No algorithm: {}".format(algorithm)))
     func()
 
-def handlePostEpisode(data):
-    print("Episode {0} (i: {1}, {2} seconds) --- r: {3} (avg: {4})".format(
+def handlePostEpisode(data, variational=False):
+    print("Episode {0} (i: {1}, {2} seconds) --- r: {3} (avg: {4}){5}".format(
         data.get("episode", "-1"),
         data.get("iteration", "-1"),
         "{:.2f}".format(data.get("duration", -1)),
         data.get("reward", "-1"),
         data.get("meanPreviousRewards", "-1"),
+        "" if not variational else " (vi: {}, bellman: {})".format(
+            data.get("variationalLosses", "-1"), data.get("bellmanLosses", "-1"),
+        ),
     ))
 
 if __name__ == '__main__':
