@@ -359,6 +359,8 @@ class VDQN:
 
                 # Run post episode event handler.
                 episodeTotals.append(episodeRewards)
+                print(variationalLosses)
+                print(bellmanLosses)
                 self.__config.get("post_episode")({
                     "episode": episode,
                     "iteration": iteration,
