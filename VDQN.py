@@ -36,7 +36,7 @@ class VDQN:
                 self.__posterior()
                 self.__forwardComputation()
                 self.__inference()
-                self.__assignments()
+                self.__assignments_init()
 
 
         def __model(self):
@@ -178,7 +178,7 @@ class VDQN:
                 n_iter = iterations
             )
 
-        def __assignments(self):
+        def __assignments_init(self):
             self.__values_W_mu = { x: tf.placeholder(tf.float32, y.shape) for x, y in self.__posterior_W_mu.items() }
             self.__values_W_rho = { x: tf.placeholder(tf.float32, y.shape) for x, y in self.__posterior_W_rho.items() }
             self.__values_b_mu = { x: tf.placeholder(tf.float32, y.shape) for x, y in self.__posterior_b_mu.items() }
@@ -209,7 +209,7 @@ class VDQN:
                 variables[self.__values_W_rho[i]] = W_rho
                 variables[self.__values_b_mu[i]] = b_mu
                 variables[self.__values_b_rho[i]] = b_rho
-            self.__session.run(self.__assignment, feed_dict=variables)
+            self.__session.run(self.__assignments, feed_dict=variables)
 
         def get_assignments(self):
             W_mu, W_rho, b_mu, b_rho = {}, {}, {}, {}
