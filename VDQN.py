@@ -8,6 +8,7 @@ import edward
 import edward.models as edm
 import tensorflow as tf
 from helpers.ReplayBuffer import ReplayBuffer
+from chainer import functions
 
 class VDQN:
 
@@ -258,6 +259,7 @@ class VDQN:
     def __init__(self, config, double=False, debug=False):
         self.__enableDebug = debug
         self.__config = config
+        self.__doubleVDQN = double
 
     def __debug(self, msg: str, newlines: int = 0):
         if(self.__enableDebug):
@@ -339,7 +341,19 @@ class VDQN:
                         minibatch = replayBuffer.randomSample(minibatchSize)
                         noise_W, noise_b = _n.sample(minibatchSize)
                         _qAll = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
-                        _qTargetValue = gamma * np.max(_qAll, axis=1) * (1-minibatch["completes"]) + minibatch["rewards"]
+
+                        if self.__doubleVDQN:
+                            __alpha = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
+                            __beta = _q.computeValue(minibatch["nextStates"], noise_W, noise_b)
+                            _qNext = functions.select_item(
+                                __alpha,
+                                functions.argmax(__beta, axis=1)
+                            )
+                        else:
+                            __alpha = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
+                            _qNext = functions.max(__alpha, axis=1)
+
+                        _qTargetValue = gamma * _qNext * (1-minibatch["completes"]) + minibatch["rewards"]
                         _loss = _q.train(minibatch["states"], minibatch["actions"], _qTargetValue)
                         variationalLosses.append(_loss["loss"])
 

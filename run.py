@@ -47,6 +47,7 @@ def main():
         "DQN": lambda: DQN(config).run(),
         "DDQN": lambda: DQN(config, double=True).run(),
         "VDQN": lambda: VDQN(config).run(),
+        "DVDQN": lambda: VDQN(config, double=True).run(),
     }
     func = switcher.get(algorithm, lambda: sys.exit("No algorithm: {}".format(algorithm)))
     func()
