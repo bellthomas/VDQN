@@ -227,7 +227,7 @@ class VDQN:
             self.assign(*variables)
 
         def train(self, observation, actions, targets):
-            return self.__inference({
+            return self.__inference.update({
                 self.__stateX: observation,
                 self.__actionX: actions,
                 self.__actionTargets: targets
