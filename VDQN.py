@@ -188,19 +188,18 @@ class VDQN:
             layers = len(self.__values_W_mu.keys())
             _t = self.__tau
             for _i in range(layers):
-                _alpha = self.__posterior_W_mu[_i].assign(
+                self.__assignments.append(self.__posterior_W_mu[_i].assign(
                     _t * self.__values_W_mu[_i] + (1-_t) * self.__posterior_W_mu[_i]
-                )
-                _beta = self.__posterior_W_rho[_i].assign(
+                ))
+                self.__assignments.append(self.__posterior_W_rho[_i].assign(
                     _t * self.__values_W_rho[_i] + (1-_t) * self.__posterior_W_rho[_i]
-                )
-                _gamma = self.__posterior_b_mu[_i].assign(
+                ))
+                self.__assignments.append(self.__posterior_b_mu[_i].assign(
                     _t * self.__values_b_mu[_i] + (1-_t) * self.__posterior_b_mu[_i]
-                )
-                _delta = self.__posterior_b_rho[_i].assign(
+                ))
+                self.__assignments.append(self.__posterior_b_rho[_i].assign(
                     _t * self.__values_b_rho[_i] + (1-_t) * self.__posterior_b_rho[_i]
-                )
-                self.__assignments.extend([_alpha, _beta, _gamma, _delta])
+                ))
 
         def assign(self, W_mu, W_rho, b_mu, b_rho):
             variables = {}
@@ -224,8 +223,8 @@ class VDQN:
             return self.__shape_W, self.__shape_b
 
         def update(self, _q):
-            W_mu, W_rho, b_mu, b_rho = _q.get_assignments()
-            self.assign(W_mu, W_rho, b_mu, b_rho)
+            variables = _q.get_assignments()
+            self.assign(*variables)
 
         def train(self, observation, actions, targets):
             return self.__inference({
