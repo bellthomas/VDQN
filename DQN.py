@@ -78,7 +78,7 @@ class DQN:
         loss.backward()
         optimiser.update()
 
-    def __greedyAction(self, _q, state):
+    def __generateAction(self, _q, state):
         """Get a greedy action wrt a given Q-function."""
         state = _q.xp.asarray(state[None], dtype=np.float32)
         with chainer.no_backprop_mode():
@@ -148,7 +148,7 @@ class DQN:
                 # Either random or greedy depending on the current epsilon value.
                 action = environment.action_space.sample() \
                     if np.random.rand() < epsilon \
-                    else self.__greedyAction(_q, currentState)
+                    else self.__generateAction(_q, currentState)
 
                 # Execute the chosen action.
                 nextState, reward, completed, _ = environment.step(action)

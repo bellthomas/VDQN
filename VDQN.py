@@ -268,6 +268,13 @@ class VDQN:
                 msg
             ))
 
+    def __generateAction(self, _q, state):
+        noise_W, noise_b = self.__n.sample(1)
+        _qValue = _q.computeValue(state[None], noise_W, noise_b)
+        action = np.argmax(_qValue.flatten())
+        return action
+ 
+
     def run(self):
         self.__debug(self.__config.get("episodes"))
 
@@ -301,6 +308,7 @@ class VDQN:
             _q = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimizer(self.__config.get("loss_rate")), scope="primary")
             _qTarget = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimizer(self.__config.get("loss_rate")), scope="target")
             _n = self.NormalSampler(*_q.get_shape())
+            self.__n = _n
             session.run(tf.global_variables_initializer())
 
             _qTarget.update(_q)
@@ -318,12 +326,26 @@ class VDQN:
 
                 # Run an iteration of the current episode.
                 while running and timestep < maximumNumberOfSteps:
-                    self.__debug("Episode {}: Timestep {}".format(episode, timestep))
 
-                    # Select action.
-                    noise_W, noise_b = _n.sample(1)
-                    _qValue = _q.computeValue(currentState[None], noise_W, noise_b)
-                    action = np.argmax(_qValue.flatten())
+                    # Decay the epsilon value as the episode progresses.
+                    epsilon = 1.0
+                    if(len(replayBuffer) >= replayStartThreshold):
+                        epsilon = max(
+                            minimumEpsilon,
+                            np.interp(
+                                iteration,
+                                [0, epsilonDecayPeriod],
+                                [1.0, minimumEpsilon]
+                            )
+                        )
+
+                    # Select action to perform.
+                    # Either random or greedy depending on the current epsilon value.
+                    action = environment.action_space.sample() \
+                        if np.random.rand() < epsilon \
+                        else self.__generateAction(_q, currentState)
+
+                    self.__debug("Episode {}: Timestep {}".format(episode, timestep))
 
                     # Execute the chosen action.
                     nextState, reward, completed, _ = environment.step(action)
@@ -340,7 +362,6 @@ class VDQN:
                     if(len(replayBuffer) >= replayStartThreshold):
                         minibatch = replayBuffer.randomSample(minibatchSize)
                         noise_W, noise_b = _n.sample(minibatchSize)
-                        _qAll = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
 
                         _alpha = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
                         if self.__doubleVDQN:
