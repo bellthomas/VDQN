@@ -204,10 +204,10 @@ class VDQN:
         def assign(self, W_mu, W_rho, b_mu, b_rho):
             variables = {}
             for i in range(len(self.__posterior_W.keys())):
-                variables[self.__values_W_mu[i]] = W_mu
-                variables[self.__values_W_rho[i]] = W_rho
-                variables[self.__values_b_mu[i]] = b_mu
-                variables[self.__values_b_rho[i]] = b_rho
+                variables[self.__values_W_mu[i]] = W_mu[i]
+                variables[self.__values_W_rho[i]] = W_rho[i]
+                variables[self.__values_b_mu[i]] = b_mu[i]
+                variables[self.__values_b_rho[i]] = b_rho[i]
             self.__session.run(self.__assignments, feed_dict=variables)
 
         def get_assignments(self):
