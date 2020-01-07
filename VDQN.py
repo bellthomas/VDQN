@@ -1,4 +1,5 @@
 from collections import deque
+from time import time
 
 import gym
 import numpy as np
@@ -7,7 +8,6 @@ import edward
 import edward.models as edm
 import tensorflow as tf
 from helpers.ReplayBuffer import ReplayBuffer
-
 
 class VDQN:
 
