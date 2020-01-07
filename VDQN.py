@@ -297,7 +297,7 @@ class VDQN:
         bellmanLosses = deque(maxlen = self.__config.get("episode_history_averaging"))
 
         with tf.Session() as session:
-            _q = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimiser(self.__config.get("loss_rate")), scope="primary")
+            _q = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimizer(self.__config.get("loss_rate")), scope="primary")
             _qTarget = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, scope="target")
             _n = self.NormalSampler(*_q.get_shape())
             session.run(tf.global_variables_initializer())
