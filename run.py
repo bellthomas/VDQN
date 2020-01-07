@@ -39,7 +39,7 @@ def main():
         "output_path": output_dir_abs,
         "episodes": args.episodes,
         "environment": args.environment,
-        "post_episode": lambda x: handlePostEpisode(x, variational=(algorithm in ["VDQN"])),
+        "post_episode": lambda x: handlePostEpisode(x, variational=(algorithm in ["VDQN","DVDQN"])),
         "maximum_timesteps": args.timesteps
     })
 
