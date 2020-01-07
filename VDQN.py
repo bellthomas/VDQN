@@ -1,10 +1,13 @@
-import tensorflow as tf
-import edward
-import edward.models as edm
+from collections import deque
+
 import gym
 import numpy as np
-from ReplayBuffer import ReplayBuffer
-from collections import deque
+
+import edward
+import edward.models as edm
+import tensorflow as tf
+from helpers.ReplayBuffer import ReplayBuffer
+
 
 class VDQN:
 
