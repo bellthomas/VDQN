@@ -224,8 +224,8 @@ class VDQN:
             return self.__shape_W, self.__shape_b
 
         def update(self, _q):
-            variables = _q.get_assignments()
-            self.assign(*variables)
+            W_mu, W_rho, b_mu, b_rho = _q.get_assignments()
+            self.assign(W_mu, W_rho, b_mu, b_rho)
 
         def train(self, observation, actions, targets):
             return self.__inference({
