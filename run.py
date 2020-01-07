@@ -18,7 +18,7 @@ def main():
 
     # Initialise
     algorithm = args.algorithm.upper()
-    if not algorithm in ["DQN", "DDQN", "VDQN"]:
+    if not algorithm in ["DQN", "DDQN", "VDQN", "DVDQN"]:
         sys.exit("Invalid algorithm")
     
     loss_rate = 1e-2
