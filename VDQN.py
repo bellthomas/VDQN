@@ -3,12 +3,13 @@ from time import time
 
 import gym
 import numpy as np
+from chainer import functions
 
 import edward
 import edward.models as edm
 import tensorflow as tf
 from helpers.ReplayBuffer import ReplayBuffer
-from chainer import functions
+
 
 class VDQN:
 
@@ -224,8 +225,7 @@ class VDQN:
             return self.__shape_W, self.__shape_b
 
         def update(self, _q):
-            variables = _q.get_assignments()
-            self.assign(*variables)
+            self.assign(*_q.get_assignments())
 
         def train(self, observation, actions, targets):
             return self.__inference.update({
@@ -299,7 +299,7 @@ class VDQN:
 
         with tf.Session() as session:
             _q = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimizer(self.__config.get("loss_rate")), scope="primary")
-            _qTarget = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, scope="target")
+            _qTarget = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimizer(self.__config.get("loss_rate")), scope="target")
             _n = self.NormalSampler(*_q.get_shape())
             session.run(tf.global_variables_initializer())
 
@@ -342,17 +342,14 @@ class VDQN:
                         noise_W, noise_b = _n.sample(minibatchSize)
                         _qAll = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
 
-                        __alpha = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
+                        _alpha = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
                         if self.__doubleVDQN:
-                            __beta = _q.computeValue(minibatch["nextStates"], noise_W, noise_b)
-                            _qNext = functions.select_item(
-                                __alpha,
-                                functions.argmax(__beta, axis=1)
-                            )
+                            _beta = _q.computeValue(minibatch["nextStates"], noise_W, noise_b)
+                            _qNext = functions.select_item(_alpha, functions.argmax(_beta, axis=1))
                         else:
-                            _qNext = functions.max(__alpha, axis=1)
+                            _qNext = functions.max(_alpha, axis=1)
                         
-                        _qTargetValue = gamma * _qNext.array * (1-minibatch["completes"]) + minibatch["rewards"]
+                        _qTargetValue = gamma * _qNext.array * (1 - minibatch["completes"]) + minibatch["rewards"]
                         _loss = _q.train(minibatch["states"], minibatch["actions"], _qTargetValue)
                         variationalLosses.append(_loss["loss"])
 
