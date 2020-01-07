@@ -345,7 +345,7 @@ class VDQN:
 
                         noise_W_dup, noise_b_dup = noise_W, noise_b
                         _prediction = _q.computeValue(minibatch["states"], noise_W_dup, noise_b_dup)
-                        _predictedAction = _prediction[minibatchSize, minibatch["actions"]]
+                        _predictedAction = _prediction[np.arange(minibatchSize), minibatch["actions"]]
                         _bellmanLoss = np.mean((_predictedAction - _qTargetValue)**2)
                         bellmanLosses.append(_bellmanLoss)
 
