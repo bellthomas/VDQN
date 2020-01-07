@@ -341,7 +341,7 @@ class VDQN:
                         _qAll = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
                         _qTargetValue = gamma * np.max(_qAll, axis=1) * (1-minibatch["completes"]) + minibatch["rewards"]
                         _loss = _q.train(minibatch["states"], minibatch["actions"], _qTargetValue)
-                        variationalLosses.append(_loss)
+                        variationalLosses.append(_loss["loss"])
 
                         noise_W_dup, noise_b_dup = noise_W, noise_b
                         _prediction = _q.computeValue(minibatch["states"], noise_W_dup, noise_b_dup)
@@ -359,8 +359,6 @@ class VDQN:
 
                 # Run post episode event handler.
                 episodeTotals.append(episodeRewards)
-                print(variationalLosses)
-                print(bellmanLosses)
                 self.__config.get("post_episode")({
                     "episode": episode,
                     "iteration": iteration,
