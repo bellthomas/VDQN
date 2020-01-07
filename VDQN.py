@@ -342,17 +342,19 @@ class VDQN:
                         noise_W, noise_b = _n.sample(minibatchSize)
                         _qAll = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
 
+                        __alpha = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
                         if self.__doubleVDQN:
-                            __alpha = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
                             __beta = _q.computeValue(minibatch["nextStates"], noise_W, noise_b)
                             _qNext = functions.select_item(
                                 __alpha,
                                 functions.argmax(__beta, axis=1)
                             )
                         else:
-                            __alpha = _qTarget.computeValue(minibatch["nextStates"], noise_W, noise_b)
                             _qNext = functions.max(__alpha, axis=1)
 
+                        print(_qNext)
+                        print(np.max(__alpha, axis=1))
+                        
                         _qTargetValue = gamma * _qNext * (1-minibatch["completes"]) + minibatch["rewards"]
                         _loss = _q.train(minibatch["states"], minibatch["actions"], _qTargetValue)
                         variationalLosses.append(_loss["loss"])
