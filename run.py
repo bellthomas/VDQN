@@ -18,7 +18,7 @@ def execute(algorithm, env, episodes, timesteps, update_cadence=100, seed=100, l
     np.random.seed(seed)
 
     # Logs
-    output_dir = "logs/{}/{}/loss_{}_episodes_{}_updatefreq_".format(
+    output_dir = "logs/{}/{}/loss_{}_episodes_{}_updatefreq_{}".format(
         algorithm, env, lr, episodes, update_cadence
     )
     output_path = Path(output_dir)
