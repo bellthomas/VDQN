@@ -19,7 +19,7 @@ def run(id, algorithm, env, episodes, timesteps, seed, lr):
     start = time()
     name = "{}: {}-{}-{}".format(id, algorithm, env, episodes)
     print("Starting {}".format(name))
-    execute(algorithm, env, episodes, timesteps, seed, lr)
+    execute(algorithm, env, episodes, timesteps, seed, lr, silent=True)
     print("Finished {} in {} seconds".format(name, time() - start))
 
 

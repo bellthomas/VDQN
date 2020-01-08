@@ -8,7 +8,7 @@ from AlgorithmConfig import AlgorithmConfig
 
 # Envs: ["MountainCar-v0", "CartPole-v0", "CartPole-v1", "Acrobot-v1", "Tennis-v0", "AsterixNoFrameskip-v4", "Asteroids-v0"]
 
-def execute(algorithm, env, episodes, timesteps, seed=100, lr=1e-2):
+def execute(algorithm, env, episodes, timesteps, seed=100, lr=1e-2, silent=False):
     # Initialise
     algorithm = algorithm.upper()
     if not algorithm in ["DQN", "DDQN", "VDQN", "DVDQN"]:
@@ -30,7 +30,7 @@ def execute(algorithm, env, episodes, timesteps, seed=100, lr=1e-2):
         "output_path": output_dir_abs,
         "episodes": episodes,
         "environment": env,
-        "post_episode": lambda x: handlePostEpisode(x, variational=(algorithm in ["VDQN","DVDQN"])),
+        "post_episode": lambda x: handlePostEpisode(x, silent, variational=(algorithm in ["VDQN","DVDQN"])),
         "maximum_timesteps": timesteps
     })
 
@@ -43,7 +43,7 @@ def execute(algorithm, env, episodes, timesteps, seed=100, lr=1e-2):
     func = switcher.get(algorithm, lambda: sys.exit("No algorithm: {}".format(algorithm)))
     func()
 
-def handlePostEpisode(data, variational=False):
+def handlePostEpisode(data, silent, variational=False):
     dataline = ("Episode {0} (i: {1}, {2} seconds) --- r: {3} (avg: {4}){5}".format(
         data.get("episode", "-1"),
         data.get("iteration", "-1"),
@@ -55,7 +55,8 @@ def handlePostEpisode(data, variational=False):
         ),
     ))
 
-    print(dataline)
+    if not silent:
+        print(dataline)
 
 def main():
     argparser = ArgumentParser(description='VDQN/DQN Demonstrator')
