@@ -28,11 +28,11 @@ experiments = [
     ("8b", "DVDQN", "CartPole-v0", 500, 500, 10, 100, 1e-3),
 ]
 
-def run(id, algorithm, env, episodes, timesteps, seed, lr):
+def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr):
     start = time()
     name = "{}: {}-{}-{}".format(id, algorithm, env, episodes)
     print("Starting {}".format(name))
-    execute(algorithm, env, episodes, timesteps, seed, lr, silent=True)
+    execute(algorithm, env, episodes, timesteps, update_cadence, seed, lr, silent=True)
     print("Finished {} in {} seconds".format(name, time() - start))
 
 
