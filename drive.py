@@ -7,17 +7,25 @@ loop = True
 threads = multiprocessing.cpu_count()
 cores = threads / 2
 
-# (id, algorithm, env, episodes, timesteps, update_cadence=100, seed=100, lr=1e-2)
-experiments = [
-    ("1a", "DQN", "CartPole-v0", 500, 200, 10, 100, 1e-2),
-    ("2a", "DDQN", "CartPole-v0", 500, 200, 10, 100, 1e-2),
-    ("3a", "VDQN", "CartPole-v0", 500, 200, 10, 100, 1e-2),
-    ("4a", "DVDQN", "CartPole-v0", 500, 200, 10, 100, 1e-2),
-    ("5a", "DQN", "CartPole-v0", 500, 200, 10, 100, 1e-3),
-    ("6a", "DDQN", "CartPole-v0", 500, 200, 10, 100, 1e-3),
-    ("7a", "VDQN", "CartPole-v0", 500, 200, 10, 100, 1e-3),
-    ("8a", "DVDQN", "CartPole-v0", 500, 200, 10, 100, 1e-3),
+algorithms = ["DQN", "DDQN", "VDQN", "DVDQN"]
+loss_rates = [1e-2, 1e-3, 1e-4]
+environments = [
+    ["CartPole-v0", 400, 200],
+    ["CartPole-v1", 400, 500],
+    ["MountainCar-v0", 400, 500],
+    ["Acrobot-v1", 400, 500]
 ]
+
+_i = 0
+update_cadence = 10
+seed = 100
+experiments = []
+for _e in environments:
+    for _lr in loss_rates:
+        for _a in algorithms:
+            experiments.append((_i, _a, _e[0], _e[1], _e[2], update_cadence, seed, _lr))
+            _i += 1
+
 
 def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr):
     start = time()
@@ -29,10 +37,7 @@ def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr):
 
 def process_alive(proc):
     proc.join(timeout=0)
-    if proc.is_alive():
-        return True
-    else:
-        return False
+    return proc.is_alive()
 
 num_processes = 2
 processes = []

@@ -8,7 +8,7 @@ from AlgorithmConfig import AlgorithmConfig
 
 # Envs: ["MountainCar-v0", "CartPole-v0", "CartPole-v1", "Acrobot-v1", "Tennis-v0", "AsterixNoFrameskip-v4", "Asteroids-v0"]
 
-def execute(algorithm, env, episodes, timesteps, update_cadence=100, seed=100, lr=1e-2, silent=False):
+def execute(algorithm, env, episodes, timesteps, update_cadence=10, seed=100, lr=1e-2, silent=False):
     # Initialise
     algorithm = algorithm.upper()
     if not algorithm in ["DQN", "DDQN", "VDQN", "DVDQN"]:
@@ -18,18 +18,18 @@ def execute(algorithm, env, episodes, timesteps, update_cadence=100, seed=100, l
     np.random.seed(seed)
 
     # Logs
-    output_dir = "logs/{}/{}/loss_{}_episodes_{}_updatefreq_{}".format(
-        algorithm, env, lr, episodes, update_cadence
+    output_dir = "logs/{}/{}/l{}_u{}".format(
+        algorithm, env, lr, update_cadence
     )
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     output_dir_abs = output_path.absolute().as_posix()
 
     output_file_index = 0
-    output_file = Path("{}/{}".format(output_dir_abs, output_file_index))
+    output_file = Path("{}/{}-{}".format(output_dir_abs, output_file_index, episodes))
     while output_file.exists():
         output_file_index += 1
-        output_file = Path("{}/{}".format(output_dir_abs, output_file_index))
+        output_file = Path("{}/{}-{}".format(output_dir_abs, output_file_index, episodes))
     output_file_uri = output_file.absolute().as_posix()
 
     # Build concifg object
