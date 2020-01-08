@@ -7,12 +7,25 @@ loop = True
 threads = multiprocessing.cpu_count()
 cores = threads / 2
 
-# (id, algorithm, env, episodes, timesteps, seed=100, lr=1e-2)
+# (id, algorithm, env, episodes, timesteps, update_cadence=100, seed=100, lr=1e-2)
 experiments = [
-    ("1", "DQN", "CartPole-v0", 200, 1000, 100, 1e-2),
-    ("2", "DDQN", "CartPole-v0", 200, 1000, 100, 1e-2),
-    ("3", "VDQN", "CartPole-v0", 200, 1000, 100, 1e-2),
-    ("4", "DVDQN", "CartPole-v0", 200, 1000, 100, 1e-2),
+    ("1a", "DQN", "CartPole-v0", 500, 500, 10, 100, 1e-2),
+    ("1b", "DQN", "CartPole-v0", 500, 500, 100, 100, 1e-2),
+    ("2a", "DDQN", "CartPole-v0", 500, 500, 10, 100, 1e-2),
+    ("2b", "DDQN", "CartPole-v0", 500, 500, 100, 100, 1e-2),
+    ("3a", "VDQN", "CartPole-v0", 500, 500, 10, 100, 1e-2),
+    ("3b", "VDQN", "CartPole-v0", 500, 500, 100, 100, 1e-2),
+    ("4a", "DVDQN", "CartPole-v0", 500, 500, 10, 100, 1e-2),
+    ("4b", "DVDQN", "CartPole-v0", 500, 500, 100, 100, 1e-2),
+
+    ("5a", "DQN", "CartPole-v0", 500, 500, 100, 100, 1e-3),
+    ("5b", "DQN", "CartPole-v0", 500, 500, 100, 100, 1e-3),
+    ("6a", "DDQN", "CartPole-v0", 500, 500, 100, 100, 1e-3),
+    ("6b", "DDQN", "CartPole-v0", 500, 500, 100, 100, 1e-3),
+    ("7a", "VDQN", "CartPole-v0", 500, 500, 100, 100, 1e-3),
+    ("7b", "VDQN", "CartPole-v0", 500, 500, 100, 100, 1e-3),
+    ("8a", "DVDQN", "CartPole-v0", 500, 500, 10, 100, 1e-3),
+    ("8b", "DVDQN", "CartPole-v0", 500, 500, 10, 100, 1e-3),
 ]
 
 def run(id, algorithm, env, episodes, timesteps, seed, lr):
