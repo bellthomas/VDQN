@@ -306,7 +306,7 @@ class VDQN:
 
         with tf.Session() as session:
             _q = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimizer(self.__config.get("loss_rate")), scope="primary")
-            _qTarget = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimizer(self.__config.get("loss_rate")), scope="target")
+            _qTarget = self.VariationalQFunction(obvSpace, actSpace, hiddenLayers, session, optimiser=tf.train.AdamOptimizer(1e-3), scope="target")
             _n = self.NormalSampler(*_q.get_shape())
             self.__n = _n
             session.run(tf.global_variables_initializer())
@@ -328,22 +328,23 @@ class VDQN:
                 while running and timestep < maximumNumberOfSteps:
 
                     # Decay the epsilon value as the episode progresses.
-                    epsilon = 1.0
-                    if(len(replayBuffer) >= replayStartThreshold):
-                        epsilon = max(
-                            minimumEpsilon,
-                            np.interp(
-                                iteration,
-                                [0, epsilonDecayPeriod],
-                                [1.0, minimumEpsilon]
-                            )
-                        )
+                    # epsilon = 1.0
+                    # if(len(replayBuffer) >= replayStartThreshold):
+                    #     epsilon = max(
+                    #         minimumEpsilon,
+                    #         np.interp(
+                    #             iteration,
+                    #             [0, epsilonDecayPeriod],
+                    #             [1.0, minimumEpsilon]
+                    #         )
+                    #     )
 
                     # Select action to perform.
                     # Either random or greedy depending on the current epsilon value.
-                    action = environment.action_space.sample() \
-                        if np.random.rand() < epsilon \
-                        else self.__generateAction(_q, currentState)
+                    # action = environment.action_space.sample() \
+                    #     if np.random.rand() < epsilon \
+                    #     else self.__generateAction(_q, currentState)
+                    action = self.__generateAction(_q, currentState)
 
                     self.__debug("Episode {}: Timestep {}".format(episode, timestep))
 
