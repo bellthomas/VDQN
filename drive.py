@@ -10,23 +10,25 @@ threads = multiprocessing.cpu_count()
 cores = threads / 2
 
 algorithms = ["DQN", "DDQN", "VDQN", "DVDQN"]
-loss_rates = [1e-2, 1e-3, 1e-4]
+# loss_rates = [1e-2, 1e-3, 1e-4]
 environments = [
-    ["CartPole-v0", 400, 200],
-    ["CartPole-v1", 400, 500],
-    ["MountainCar-v0", 400, 500],
-    ["Acrobot-v1", 400, 500]
+    ["CartPole-v0", 300, 200, [1e-3, 1e-4]],
+    ["CartPole-v1", 1000, 500, [1e-3, 1e-4]],
+    ["MountainCar-v0", 1000, 200, [1e-2, 1e-3, 1e-4]],
+    ["Acrobot-v1", 1000, 500, [1e-3, 1e-4]],
 ]
 
 _i = 0
-update_cadence = 10
+update_cadences = [5,100]
 seed = 100
 experiments = []
 for _e in environments:
+    loss_rates = _e[3]
     for _lr in loss_rates:
         for _a in algorithms:
-            experiments.append((_i, _a, _e[0], _e[1], _e[2], update_cadence, seed, _lr))
-            _i += 1
+            for _c in update_cadences:
+                experiments.append((_i, _a, _e[0], _e[1], _e[2], _c, seed, _lr))
+                _i += 1
 
 
 def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr):

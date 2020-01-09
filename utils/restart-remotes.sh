@@ -1,7 +1,5 @@
 #!/bin/bash
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 while read h; do
     ADDR="$h"
-    ssh -i ~/Desktop/hc-Default.pem ubuntu@$ADDR "cd ~/VDQN; git pull; ./utils/restart-remote.sh"
-    echo $ADDR
+    ssh -q -i ~/Desktop/hc-Default.pem ubuntu@$ADDR "cd ~/VDQN; git pull; ./utils/restart-remote.sh" >>/dev/null 2>&1 & #& echo $ADDR &
 done <hosts.txt
