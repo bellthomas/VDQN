@@ -12,10 +12,10 @@ cores = threads / 2
 algorithms = ["DQN", "DDQN", "VDQN", "DVDQN"]
 # loss_rates = [1e-2, 1e-3, 1e-4]
 environments = [
-    ["CartPole-v0", 250, 200, [1e-3, 1e-4]],
-    ["CartPole-v1", 800, 500, [1e-3, 1e-4]],
-    ["MountainCar-v0", 800, 200, [1e-2, 1e-3, 1e-4]],
-    ["Acrobot-v1", 800, 500, [1e-3, 1e-4]],
+    ["CartPole-v0", 250, 250, loss_rates],
+    ["CartPole-v1", 800, 500, loss_rates],
+    ["MountainCar-v0", 800, 1000, loss_rates],
+    ["Acrobot-v1", 800, 1000, loss_rates],
 ]
 
 _i = 0

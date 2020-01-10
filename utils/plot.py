@@ -76,8 +76,8 @@ def generate_spline(xs, ys, errs):
     x_vals = np.array(xs)
     xnew = np.linspace(x_vals.min(), x_vals.max(), len(xs) // 3) 
     # print(xnew)
-    spl = make_interp_spline(x_vals, ys, k=3)  # type: BSpline
-    spl_err = make_interp_spline(x_vals, err, k=3)  # type: BSpline
+    spl = make_interp_spline(x_vals, ys, k=2)  # type: BSpline
+    spl_err = make_interp_spline(x_vals, err, k=2)  # type: BSpline
     ys_smooth = spl(xnew)
     err_smooth = spl_err(xnew)
 
@@ -111,32 +111,44 @@ colours = {
     "VDQN": "blue",
     "DVDQN": "purple"
 }
-# for indices = [
-#     ("reward", 1),
-#     # ("bellman")
-# ]
+indices = [
+    ("Reward", 3, False),
+    ("VI-Loss", 5, True),
+    ("Bellman-Loss", 6, True),
+]
 for exp in experiments:
     print(exp)
-    experiment = experiments[exp]
-    fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(10, 6), sharex=False, sharey=False)
-    axes.margins(x=0)
-    axes.set_ylabel("$Reward$", fontsize=16)
-    axes.set_xlabel("$Episodes$", fontsize=16)
+    for to_plot in indices:
+        experiment = experiments[exp]
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(10, 6), sharex=False, sharey=False)
+        axes.margins(x=0)
+        axes.set_ylabel("${}$".format(to_plot[0]), fontsize=16)
+        axes.set_xlabel("$Episodes$", fontsize=16)
 
-    algorithms = []
-    for algorithm in list(experiment.keys()):
-        _d = uneven_tuple_zip(*experiments[exp][algorithm], index=3)
-        if(len(_d) > 1):
-            algorithms.append(algorithm)
-            _d_mu = apply_averaging([np.mean(x) for x in _d], averaging=averaging)
-            _d_sigma = apply_averaging([np.std(x) for x in _d], averaging=averaging)
-            _xs = range(1, len(_d)+1)
-            xs, ys, errs = generate_spline(_xs, _d_mu, _d_sigma)
+        drawn = 0
+        algorithms = []
+        for algorithm in list(experiment.keys()):
+            if to_plot[2] and algorithm not in ["VDQN","DVDQN"]:
+                continue
 
-            axes.plot(xs, ys, 'k-', color=colours.get(algorithm, 'black'), alpha=0.6)
-            axes.fill_between(xs, ys-errs, ys+errs, color=colours.get(algorithm, 'black'), alpha=0.35)
-    
-    axes.legend(algorithms)
-    plt.tight_layout()
-    plt.savefig("{}/{}.png".format(graphs_dir, exp), dpi=300)
-    plt.close(fig)
+            _d = uneven_tuple_zip(*experiments[exp][algorithm], index=to_plot[1])
+            if(len(_d) > 2):
+                algorithms.append(algorithm)
+                _d_mu = apply_averaging([np.mean(x) for x in _d], averaging=averaging)
+                _d_sigma = apply_averaging([np.std(x) for x in _d], averaging=averaging)
+                _xs = range(1, len(_d)+1)
+                xs, ys, errs = generate_spline(_xs, _d_mu, _d_sigma)
+
+                drawn += 1
+                axes.plot(xs, ys, 'k-', color=colours.get(algorithm, 'black'), alpha=0.6)
+                axes.fill_between(xs, ys-errs, ys+errs, color=colours.get(algorithm, 'black'), alpha=0.35)
+        
+        axes.legend(algorithms)
+        plt.tight_layout()
+        if(drawn > 0):
+            outdir = "{}/{}".format(graphs_dir, exp)
+            os.makedirs(outdir, exist_ok=True)
+            plt.savefig("{}/{}.png".format(outdir, to_plot[0]), dpi=300)
+            print("   {}/{}.png ({} plots)".format(outdir, to_plot[0], drawn))
+
+        plt.close(fig)
