@@ -104,13 +104,17 @@ def apply_averaging(l, averaging=10):
     return result
 
 # Loops
-averaging = 25
+averaging = 50
 colours = {
     "DQN": "red",
     "DDQN": "orange",
     "VDQN": "blue",
     "DVDQN": "purple"
 }
+# for indices = [
+#     ("reward", 1),
+#     # ("bellman")
+# ]
 for exp in experiments:
     print(exp)
     experiment = experiments[exp]
@@ -119,16 +123,18 @@ for exp in experiments:
     axes.set_ylabel("$Reward$", fontsize=16)
     axes.set_xlabel("$Episodes$", fontsize=16)
 
-    algorithms = list(experiment.keys())
-    for algorithm in algorithms:
+    algorithms = []
+    for algorithm in list(experiment.keys()):
         _d = uneven_tuple_zip(*experiments[exp][algorithm], index=3)
-        _d_mu = apply_averaging([np.mean(x) for x in _d], averaging=averaging)
-        _d_sigma = apply_averaging([np.std(x) for x in _d], averaging=averaging)
-        _xs = range(1, len(_d)+1)
-        xs, ys, errs = generate_spline(_xs, _d_mu, _d_sigma)
+        if(len(_d) > 1):
+            algorithms.append(algorithm)
+            _d_mu = apply_averaging([np.mean(x) for x in _d], averaging=averaging)
+            _d_sigma = apply_averaging([np.std(x) for x in _d], averaging=averaging)
+            _xs = range(1, len(_d)+1)
+            xs, ys, errs = generate_spline(_xs, _d_mu, _d_sigma)
 
-        axes.plot(xs, ys, 'k-', color=colours.get(algorithm, 'black'), alpha=0.6)
-        axes.fill_between(xs, ys-errs, ys+errs, color=colours.get(algorithm, 'black'), alpha=0.35)
+            axes.plot(xs, ys, 'k-', color=colours.get(algorithm, 'black'), alpha=0.6)
+            axes.fill_between(xs, ys-errs, ys+errs, color=colours.get(algorithm, 'black'), alpha=0.35)
     
     axes.legend(algorithms)
     plt.tight_layout()

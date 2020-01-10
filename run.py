@@ -1,10 +1,14 @@
+import os
+import sys
 from argparse import ArgumentParser
-import sys, os
-import numpy as np
 from pathlib import Path
-from VDQN import VDQN
-from DQN import DQN
+
+import numpy as np
+import tensorflow as tf
+
 from AlgorithmConfig import AlgorithmConfig
+from DQN import DQN
+from VDQN import VDQN
 
 # Envs: ["MountainCar-v0", "CartPole-v0", "CartPole-v1", "Acrobot-v1", "Tennis-v0", "AsterixNoFrameskip-v4", "Asteroids-v0"]
 
@@ -16,6 +20,7 @@ def execute(algorithm, env, episodes, timesteps, update_cadence=10, seed=100, lr
     
     os.environ['CHAINER_SEED'] = str(seed)
     np.random.seed(seed)
+    tf.set_random_seed(seed)
 
     # Logs
     output_dir = "logs/{}/{}/l{}_u{}".format(
