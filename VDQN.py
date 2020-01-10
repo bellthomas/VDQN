@@ -289,7 +289,7 @@ class VDQN:
         replayStartThreshold = self.__config.get("replay_start_threshold")
         minimumEpsilon = self.__config.get("minimum_epsilon")
         epsilonDecayPeriod = self.__config.get("epsilon_decay_period") # Iterations
-        rewardScaling = self.__config.get("reward_scaling")
+        rewardScaling = 1  # self.__config.get("reward_scaling")
         minibatchSize = self.__config.get("minibatch_size")
         hiddenLayers = [self.__config.get("hidden_layers")] * 2
         gamma = self.__config.get("gamma")
