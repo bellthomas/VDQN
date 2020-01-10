@@ -132,3 +132,4 @@ dmypy.json
 utils/data/
 utils/graphs/
 logs/
+.DS_Store
