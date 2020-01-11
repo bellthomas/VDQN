@@ -79,8 +79,9 @@ def main():
     argparser.add_argument('--environment', type=str, default='CartPole-v0', help='OpenAI Gym Environment')
     argparser.add_argument('--episodes', '-e', type=int, default=100, help='Duration (episodes)')
     argparser.add_argument('--timesteps', '-t', type=int, default=500, help='Duration (episodes)')
+    argparser.add_argument('--updates', '-u', type=int, default=100, help='Duration (episodes)')
     args = argparser.parse_args()
-    execute(args.algorithm, args.environment, args.episodes, args.timesteps)
+    execute(args.algorithm, args.environment, args.episodes, args.timesteps, update_cadence=args.updates)
 
 if __name__ == '__main__':
     main()

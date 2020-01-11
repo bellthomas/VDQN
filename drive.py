@@ -12,14 +12,14 @@ cores = threads / 2
 algorithms = ["DQN", "DDQN", "VDQN", "DVDQN"]
 __loss_rates = [1e-2, 1e-3, 1e-4]
 environments = [
-    ["CartPole-v0", 250, 250, __loss_rates],
-    ["CartPole-v1", 800, 500, __loss_rates],
+    # ["CartPole-v0", 250, 250, __loss_rates],
+    # ["CartPole-v1", 800, 500, __loss_rates],
     ["MountainCar-v0", 800, 1000, __loss_rates],
     ["Acrobot-v1", 800, 1000, __loss_rates],
 ]
 
 _i = 0
-update_cadences = [5,100]
+update_cadences = [100]
 seed = 100
 experiments = []
 for _e in environments:
