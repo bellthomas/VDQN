@@ -79,11 +79,12 @@ def main():
     argparser.add_argument('--algorithm', '-a', type=str, default='DQN', help='Algorithm to run')
     argparser.add_argument('--environment', type=str, default='CartPole-v0', help='OpenAI Gym Environment')
     argparser.add_argument('--episodes', '-e', type=int, default=100, help='Duration (episodes)')
-    argparser.add_argument('--timesteps', '-t', type=int, default=500, help='Duration (episodes)')
-    argparser.add_argument('--updates', '-u', type=int, default=100, help='Duration (episodes)')
-    argparser.add_argument('--lossrate', '-l', type=float, default=1e-2, help='Duration (episodes)')
+    argparser.add_argument('--timesteps', '-t', type=int, default=500, help='Max episode length (iterations)')
+    argparser.add_argument('--updates', '-u', type=int, default=100, help='Active network update cadence (iterations)')
+    argparser.add_argument('--lossrate', '-l', type=float, default=1e-2, help='Loss rate')
+    argparser.add_argument('--decay', '-d', type=float, default=5000, help='Epsilon decay period (iterations)')
     args = argparser.parse_args()
-    execute(args.algorithm, args.environment, args.episodes, args.timesteps, update_cadence=args.updates, lr=args.lossrate)
+    execute(args.algorithm, args.environment, args.episodes, args.timesteps, update_cadence=args.updates, lr=args.lossrate, epsilon=args.decay)
 
 if __name__ == '__main__':
     main()
