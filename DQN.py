@@ -152,7 +152,6 @@ class DQN:
 
                 # Execute the chosen action.
                 nextState, reward, completed, _ = environment.step(action)
-                environment.render()
                 episodeRewards += reward
 
                 # Save the experience.
@@ -185,3 +184,43 @@ class DQN:
                 "meanPreviousRewards": np.mean(episodeTotals),
                 "duration": time() - start,
             })
+
+
+### TESTING
+
+from AlgorithmConfig import AlgorithmConfig
+
+# def handlePostEpisode(data, output, silent, variational=False):
+#     dataline = ("Episode {0} (i: {1}, {2} seconds) --- r: {3} (avg: {4}){5}".format(
+#         data.get("episode", "-1"),
+#         data.get("iteration", "-1"),
+#         "{:.2f}".format(data.get("duration", -1)),
+#         data.get("reward", "-1"),
+#         data.get("meanPreviousRewards", "-1"),
+#         "" if not variational else " (vi: {}, bellman: {})".format(
+#             data.get("variationalLosses", "-1"), data.get("bellmanLosses", "-1"),
+#         ),
+#     ))
+
+#     if not silent:
+#         print(dataline)
+
+if __name__ == '__main__':
+    dqn = DQN(AlgorithmConfig({
+        "environment": "MountainCar-v0",
+        "episodes": 200,
+        "loss_rate": 1e-2,
+        # "replay_start_threshold": initDict.get("replay_start_threshold", 500),
+        # "minimum_epsilon": initDict.get("minimum_epsilon", 0.01),
+        "epsilon_decay_period": 50000,
+        "reward_scaling": 1,
+        # "minibatch_size": initDict.get("minibatch_size", 64),
+        "hidden_layers": 200,
+        "gamma": 0.99,
+        # "tau": initDict.get("tau", 1.0),
+        # "sigma": initDict.get("sigma", 0.01),
+        "network_update_frequency": 100,
+        # "episode_history_averaging": initDict.get("episode_history_averaging", 50),
+        "maximum_timesteps": 2000,
+    }), double=True)
+    dqn.run()
