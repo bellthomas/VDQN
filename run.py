@@ -46,6 +46,7 @@ def execute(algorithm, env, episodes, timesteps, update_cadence=10, seed=100, lr
         "maximum_timesteps": timesteps,
         "network_update_frequency": update_cadence,
         "epsilon_decay_period": epsilon,
+        "loss_rate": lr,
     })
 
     switcher = {
