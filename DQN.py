@@ -152,6 +152,7 @@ class DQN:
 
                 # Execute the chosen action.
                 nextState, reward, completed, _ = environment.step(action)
+                environment.render()
                 episodeRewards += reward
 
                 # Save the experience.

@@ -328,23 +328,22 @@ class VDQN:
                 while running and timestep < maximumNumberOfSteps:
 
                     # Decay the epsilon value as the episode progresses.
-                    # epsilon = 1.0
-                    # if(len(replayBuffer) >= replayStartThreshold):
-                    #     epsilon = max(
-                    #         minimumEpsilon,
-                    #         np.interp(
-                    #             iteration,
-                    #             [0, epsilonDecayPeriod],
-                    #             [1.0, minimumEpsilon]
-                    #         )
-                    #     )
+                    epsilon = 0.6
+                    if(len(replayBuffer) >= replayStartThreshold):
+                        epsilon = max(
+                            minimumEpsilon,
+                            np.interp(
+                                iteration,
+                                [0, epsilonDecayPeriod],
+                                [epsilon, minimumEpsilon]
+                            )
+                        )
 
                     # Select action to perform.
                     # Either random or greedy depending on the current epsilon value.
-                    # action = environment.action_space.sample() \
-                    #     if np.random.rand() < epsilon \
-                    #     else self.__generateAction(_q, currentState)
-                    action = self.__generateAction(_q, currentState)
+                    action = environment.action_space.sample() \
+                        if np.random.rand() < epsilon \
+                        else self.__generateAction(_q, currentState)
 
                     self.__debug("Episode {}: Timestep {}".format(episode, timestep))
 
