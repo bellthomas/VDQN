@@ -80,8 +80,9 @@ def main():
     argparser.add_argument('--episodes', '-e', type=int, default=100, help='Duration (episodes)')
     argparser.add_argument('--timesteps', '-t', type=int, default=500, help='Duration (episodes)')
     argparser.add_argument('--updates', '-u', type=int, default=100, help='Duration (episodes)')
+    argparser.add_argument('--lossrate', '-l', type=int, default=1e-2, help='Duration (episodes)')
     args = argparser.parse_args()
-    execute(args.algorithm, args.environment, args.episodes, args.timesteps, update_cadence=args.updates)
+    execute(args.algorithm, args.environment, args.episodes, args.timesteps, update_cadence=args.updates, lr=args.lossrate)
 
 if __name__ == '__main__':
     main()
