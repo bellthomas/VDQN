@@ -328,16 +328,16 @@ class VDQN:
                 while running and timestep < maximumNumberOfSteps:
 
                     # Decay the epsilon value as the episode progresses.
-                    epsilon = 0.6
-                    if(len(replayBuffer) >= replayStartThreshold):
-                        epsilon = max(
-                            minimumEpsilon,
-                            np.interp(
-                                iteration,
-                                [0, epsilonDecayPeriod],
-                                [epsilon, minimumEpsilon]
-                            )
-                        )
+                    epsilon = 0.0
+                    # if(len(replayBuffer) >= replayStartThreshold):
+                    #     epsilon = max(
+                    #         minimumEpsilon,
+                    #         np.interp(
+                    #             iteration,
+                    #             [0, epsilonDecayPeriod],
+                    #             [epsilon, minimumEpsilon]
+                    #         )
+                    #     )
 
                     # Select action to perform.
                     # Either random or greedy depending on the current epsilon value.
