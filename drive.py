@@ -12,7 +12,7 @@ cores = threads / 2
 algorithms = ["DQN", "DDQN", "VDQN", "DVDQN"]
 __loss_rates = [1e-2, 1e-3, 1e-4]
 environments = [
-    # ["CartPole-v0", 250, 250, 5000, __loss_rates],
+    ["CartPole-v0", 250, 250, 5000, __loss_rates],
     ["CartPole-v1", 400, 500, 20000, __loss_rates],
     ["MountainCar-v0", 400, 2000, 50000, __loss_rates],
     ["Acrobot-v1", 400, 2000, 50000, __loss_rates],
@@ -30,6 +30,7 @@ for _e in environments:
                 experiments.append((_i, _a, _e[0], _e[1], _e[2], _c, seed, _lr, _e[3]))
                 _i += 1
 
+print("Loaded {} experiments.".format(len(experiments)))
 
 def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr, epsilon):
     start = time()
