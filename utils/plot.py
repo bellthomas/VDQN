@@ -6,6 +6,7 @@ import numpy as np
 from scipy.interpolate import make_interp_spline, BSpline
 import matplotlib
 import matplotlib.pyplot as plt
+import datetime as dt
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 experiments = {}
@@ -31,7 +32,7 @@ def extract_data(filename, variational=False):
         return list(zip(*matches))
         # return [float(x) for x in output[drop_first_n:(len(output)-drop_last_n)]]
 
-
+after = 1578742300 # unix timestamp
 hosts = glob.glob("{}/data/*".format(dir_path))
 for host in hosts:
     algorithms = [os.path.basename(x) for x in glob.glob("{}/*".format(host))]
@@ -42,16 +43,17 @@ for host in hosts:
             for config in configs:
                 paths = glob.glob("{}/{}/{}/{}/*".format(host, algorithm, environment, config))
                 for path in paths:
-                    exp_name = "{}-{}".format(environment, config)
-                    if exp_name not in experiments:
-                        experiments[exp_name] = {}
-                    
-                    if algorithm not in experiments[exp_name]:
-                        experiments[exp_name][algorithm] = []
+                    if os.path.getctime(path) > after:
+                        exp_name = "{}-{}".format(environment, config)
+                        if exp_name not in experiments:
+                            experiments[exp_name] = {}
+                        
+                        if algorithm not in experiments[exp_name]:
+                            experiments[exp_name][algorithm] = []
 
-                    exp_data = extract_data(path, variational=(algorithm in ["VDQN","DVDQN"]))
-                    # print("{}, {}: {} episodes".format(exp_name, algorithm, len(exp_data)))
-                    experiments[exp_name][algorithm].append(exp_data)
+                        exp_data = extract_data(path, variational=(algorithm in ["VDQN","DVDQN"]))
+                        # print("{}, {}: {} episodes".format(exp_name, algorithm, len(exp_data)))
+                        experiments[exp_name][algorithm].append(exp_data)
 
 print("Data present:")
 for exp in experiments:
