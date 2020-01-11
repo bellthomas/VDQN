@@ -20,6 +20,7 @@ class AlgorithmConfig:
             "episode_history_averaging": initDict.get("episode_history_averaging", 20),
             "maximum_timesteps": initDict.get("maximum_timesteps", 1000),
         }
+        print(self.__attributes)
 
 
 
