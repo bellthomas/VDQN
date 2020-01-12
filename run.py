@@ -12,7 +12,7 @@ from VDQN import VDQN
 
 # Envs: ["MountainCar-v0", "CartPole-v0", "CartPole-v1", "Acrobot-v1", "Tennis-v0", "AsterixNoFrameskip-v4", "Asteroids-v0"]
 
-def execute(algorithm, env, episodes, timesteps, update_cadence=10, seed=100, lr=1e-2, epsilon=5000, silent=False):
+def execute(algorithm, env, episodes, timesteps, update_cadence=10, seed=100, lr=1e-2, epsilon=5000, gamma=0.99, silent=False):
     # Initialise
     algorithm = algorithm.upper()
     if not algorithm in ["DQN", "DDQN", "VDQN", "DVDQN"]:
@@ -47,6 +47,7 @@ def execute(algorithm, env, episodes, timesteps, update_cadence=10, seed=100, lr
         "network_update_frequency": update_cadence,
         "epsilon_decay_period": epsilon,
         "loss_rate": lr,
+        "gamma": gamma,
     })
 
     switcher = {

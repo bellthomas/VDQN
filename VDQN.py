@@ -80,7 +80,7 @@ class VDQN:
             activation = tf.nn.relu(tf.einsum('ij,ijk->ik', self.__observation, theta_W[0]) + theta_b[0])
             for _i in range(1, layers-1):
                 activation = tf.nn.relu(tf.einsum('ij,ijk->ik', activation, theta_W[_i]) + theta_b[_i])
-            activation = tf.nn.relu(tf.einsum('ij,ijk->ik', activation, theta_W[layers-1]) + theta_b[layers-1])
+            activation = tf.einsum('ij,ijk->ik', activation, theta_W[layers-1]) + theta_b[layers-1]
 
             self.__Q_mu = activation
             self.__noise_W = noise_W
@@ -289,7 +289,7 @@ class VDQN:
         replayStartThreshold = self.__config.get("replay_start_threshold")
         minimumEpsilon = self.__config.get("minimum_epsilon")
         epsilonDecayPeriod = self.__config.get("epsilon_decay_period") # Iterations
-        rewardScaling = 1  # self.__config.get("reward_scaling")
+        rewardScaling = self.__config.get("reward_scaling")
         minibatchSize = self.__config.get("minibatch_size")
         hiddenLayers = [self.__config.get("hidden_layers")] * 2
         gamma = self.__config.get("gamma")
@@ -326,29 +326,13 @@ class VDQN:
 
                 # Run an iteration of the current episode.
                 while running and timestep < maximumNumberOfSteps:
-
-                    # Decay the epsilon value as the episode progresses.
-                    epsilon = 0.0
-                    # if(len(replayBuffer) >= replayStartThreshold):
-                    #     epsilon = max(
-                    #         minimumEpsilon,
-                    #         np.interp(
-                    #             iteration,
-                    #             [0, epsilonDecayPeriod],
-                    #             [epsilon, minimumEpsilon]
-                    #         )
-                    #     )
-
-                    # Select action to perform.
-                    # Either random or greedy depending on the current epsilon value.
-                    action = environment.action_space.sample() \
-                        if np.random.rand() < epsilon \
-                        else self.__generateAction(_q, currentState)
-
                     self.__debug("Episode {}: Timestep {}".format(episode, timestep))
 
-                    # Execute the chosen action.
+                    # Select and execute the next action.
+                    action = self.__generateAction(_q, currentState)
                     nextState, reward, completed, _ = environment.step(action)
+                    if episode % 1 == 0:
+                        environment.render()
                     episodeRewards += reward
                     
                     # Save the experience.
@@ -370,6 +354,7 @@ class VDQN:
                         else:
                             _qNext = functions.max(_alpha, axis=1)
                         
+                        # _qNext = np.max(_alpha, axis=1) # .array
                         _qTargetValue = gamma * _qNext.array * (1 - minibatch["completes"]) + minibatch["rewards"]
                         _loss = _q.train(minibatch["states"], minibatch["actions"], _qTargetValue)
                         variationalLosses.append(_loss["loss"])
@@ -405,37 +390,38 @@ class VDQN:
 
 from AlgorithmConfig import AlgorithmConfig
 
-# def handlePostEpisode(data, output, silent, variational=False):
-#     dataline = ("Episode {0} (i: {1}, {2} seconds) --- r: {3} (avg: {4}){5}".format(
-#         data.get("episode", "-1"),
-#         data.get("iteration", "-1"),
-#         "{:.2f}".format(data.get("duration", -1)),
-#         data.get("reward", "-1"),
-#         data.get("meanPreviousRewards", "-1"),
-#         "" if not variational else " (vi: {}, bellman: {})".format(
-#             data.get("variationalLosses", "-1"), data.get("bellmanLosses", "-1"),
-#         ),
-#     ))
+def handlePostEpisode(data, output, silent=False, variational=False):
+    dataline = ("Episode {0} (i: {1}, {2} seconds) --- r: {3} (avg: {4}){5}".format(
+        data.get("episode", "-1"),
+        data.get("iteration", "-1"),
+        "{:.2f}".format(data.get("duration", -1)),
+        data.get("reward", "-1"),
+        data.get("meanPreviousRewards", "-1"),
+        "" if not variational else " (vi: {}, bellman: {})".format(
+            data.get("variationalLosses", "-1"), data.get("bellmanLosses", "-1"),
+        ),
+    ))
 
-#     if not silent:
-#         print(dataline)
+    if not silent:
+        print(dataline)
 
 if __name__ == '__main__':
     vdqn = VDQN(AlgorithmConfig({
-        "environment": "CartPole-v0",
-        "episodes": 200,
-        "loss_rate": 1e-2,
-        # "replay_start_threshold": initDict.get("replay_start_threshold", 500),
+        "environment": "Pong-ram-v0",
+        "episodes": 100,
+        "loss_rate": 1e-3,
+        # "replay_start_threshold": 500,
         # "minimum_epsilon": initDict.get("minimum_epsilon", 0.01),
-        "epsilon_decay_period": 50000,
-        "reward_scaling": 1,
+        # "epsilon_decay_period": 25000,
+        # "reward_scaling": 1,
         # "minibatch_size": initDict.get("minibatch_size", 64),
-        "hidden_layers": 50,
-        "gamma": 0.99,
-        # "tau": initDict.get("tau", 1.0),
-        # "sigma": initDict.get("sigma", 0.01),
-        "network_update_frequency": 100,
+        # "hidden_layers": 100,
+        "gamma": 0.9,
+        # "tau": 0.99,
+        # "sigma": 0.01,
+        # "network_update_frequency": 100,
         # "episode_history_averaging": initDict.get("episode_history_averaging", 50),
-        "maximum_timesteps": 200,
+        "maximum_timesteps": 10000,
+        "post_episode": (lambda x: handlePostEpisode(x, "", variational=True)),
     }), double=True)
     vdqn.run()

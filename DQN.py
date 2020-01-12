@@ -152,6 +152,7 @@ class DQN:
 
                 # Execute the chosen action.
                 nextState, reward, completed, _ = environment.step(action)
+                environment.render()
                 episodeRewards += reward
 
                 # Save the experience.
@@ -207,20 +208,20 @@ from AlgorithmConfig import AlgorithmConfig
 
 if __name__ == '__main__':
     dqn = DQN(AlgorithmConfig({
-        "environment": "MountainCar-v0",
+        "environment": "Acrobot-v1",
         "episodes": 200,
-        "loss_rate": 1e-2,
-        # "replay_start_threshold": initDict.get("replay_start_threshold", 500),
+        "loss_rate": 1e-3,
+        # "replay_start_threshold": 5000,
         # "minimum_epsilon": initDict.get("minimum_epsilon", 0.01),
-        "epsilon_decay_period": 50000,
+        "epsilon_decay_period": 20000,
         "reward_scaling": 1,
         # "minibatch_size": initDict.get("minibatch_size", 64),
-        "hidden_layers": 200,
+        "hidden_layers": 50,
         "gamma": 0.99,
         # "tau": initDict.get("tau", 1.0),
         # "sigma": initDict.get("sigma", 0.01),
         "network_update_frequency": 100,
         # "episode_history_averaging": initDict.get("episode_history_averaging", 50),
-        "maximum_timesteps": 2000,
+        "maximum_timesteps": 500,
     }), double=True)
     dqn.run()

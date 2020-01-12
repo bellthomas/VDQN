@@ -10,12 +10,14 @@ threads = multiprocessing.cpu_count()
 cores = threads / 2
 
 algorithms = ["DQN", "DDQN", "VDQN", "DVDQN"]
-__loss_rates = [1e-2, 1e-3, 1e-4]
+__loss_rates = [1e-2, 1e-3]
 environments = [
-    ["CartPole-v0", 250, 250, 5000, __loss_rates],
-    ["CartPole-v1", 400, 500, 20000, __loss_rates],
-    ["MountainCar-v0", 400, 2000, 50000, __loss_rates],
-    ["Acrobot-v1", 400, 2000, 50000, __loss_rates],
+    ["CartPole-v0", 250, 250, 5000, __loss_rates, [0.9, 0.99]],
+    ["CartPole-v1", 800, 500, 15000, __loss_rates, [0.9, 0.99]],
+    ["MountainCar-v0", 1000, 1000, 30000, __loss_rates, [0.9, 0.99]],
+    ["Acrobot-v1", 500, 500, 30000, __loss_rates, [0.9, 0.99]],
+    ["SpaceInvaders-ram-v0", 100, 10000, 300000, __loss_rates, [0.9]],
+    ["Pong-ram-v0", 100, 10000, 300000, __loss_rates, [0.9]],
 ]
 
 _i = 0
@@ -27,10 +29,13 @@ for _e in environments:
     for _lr in loss_rates:
         for _a in algorithms:
             for _c in update_cadences:
-                experiments.append((_i, _a, _e[0], _e[1], _e[2], _c, seed, _lr, _e[3]))
-                _i += 1
+                gammas = _e[5]
+                for _g in gammas:
+                    experiments.append((_i, _a, _e[0], _e[1], _e[2], _c, seed, _lr, _e[3], _g))
+                    _i += 1
 
 print("Loaded {} experiments.".format(len(experiments)))
+exit()
 
 def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr, epsilon):
     start = time()
