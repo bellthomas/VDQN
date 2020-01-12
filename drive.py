@@ -51,9 +51,9 @@ def process_alive(proc):
 num_processes = 2
 processes = []
 # available_affinities = list(range(cores))
-next_experiment = 0 if not loop else random.randint(0, len(experiments))
+next_experiment = 0 if not loop else random.randint(0, len(experiments)-1)
 
-while(next_experiment < len(experiments)):
+while(next_experiment < len(experiments) or loop):
     # Remove completed processes.
     processes = list(filter(process_alive, processes))
     while(len(processes) < num_processes and next_experiment < len(experiments)):
