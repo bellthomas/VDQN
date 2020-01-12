@@ -36,11 +36,11 @@ for _e in environments:
 
 print("Loaded {} experiments.".format(len(experiments)))
 
-def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr, epsilon):
+def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr, epsilon, gamma):
     start = time()
-    name = "{}: {}-{}-{}".format(id, algorithm, env, episodes)
+    name = "{}: {}-{} (L: {}, G: {})".format(id, algorithm, env, lr, gamma)
     print("Starting {}".format(name))
-    execute(algorithm, env, episodes, timesteps, update_cadence, seed, lr, epsilon, silent=True)
+    execute(algorithm, env, episodes, timesteps, update_cadence, seed, lr, epsilon, gamma=gamma, silent=True)
     print("Finished {} in {} seconds".format(name, time() - start))
 
 
