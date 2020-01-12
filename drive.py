@@ -35,7 +35,6 @@ for _e in environments:
                     _i += 1
 
 print("Loaded {} experiments.".format(len(experiments)))
-exit()
 
 def run(id, algorithm, env, episodes, timesteps, update_cadence, seed, lr, epsilon):
     start = time()
