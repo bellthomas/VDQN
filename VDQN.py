@@ -331,8 +331,6 @@ class VDQN:
                     # Select and execute the next action.
                     action = self.__generateAction(_q, currentState)
                     nextState, reward, completed, _ = environment.step(action)
-                    if episode % 1 == 0:
-                        environment.render()
                     episodeRewards += reward
                     
                     # Save the experience.
