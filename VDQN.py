@@ -331,6 +331,7 @@ class VDQN:
                     # Select and execute the next action.
                     action = self.__generateAction(_q, currentState)
                     nextState, reward, completed, _ = environment.step(action)
+                    environment.render()
                     episodeRewards += reward
                     
                     # Save the experience.
@@ -405,8 +406,8 @@ def handlePostEpisode(data, output, silent=False, variational=False):
 
 if __name__ == '__main__':
     vdqn = VDQN(AlgorithmConfig({
-        "environment": "Pong-ram-v0",
-        "episodes": 100,
+        "environment": "MountainCar-v0",
+        "episodes": 300,
         "loss_rate": 1e-3,
         # "replay_start_threshold": 500,
         # "minimum_epsilon": initDict.get("minimum_epsilon", 0.01),
@@ -419,7 +420,7 @@ if __name__ == '__main__':
         # "sigma": 0.01,
         # "network_update_frequency": 100,
         # "episode_history_averaging": initDict.get("episode_history_averaging", 50),
-        "maximum_timesteps": 10000,
+        "maximum_timesteps": 800,
         "post_episode": (lambda x: handlePostEpisode(x, "", variational=True)),
     }), double=True)
     vdqn.run()

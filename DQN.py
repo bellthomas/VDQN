@@ -208,19 +208,19 @@ from AlgorithmConfig import AlgorithmConfig
 if __name__ == '__main__':
     dqn = DQN(AlgorithmConfig({
         "environment": "Acrobot-v1",
-        "episodes": 200,
-        "loss_rate": 1e-3,
+        "episodes": 500,
+        "loss_rate": 1e-2,
         # "replay_start_threshold": 5000,
         # "minimum_epsilon": initDict.get("minimum_epsilon", 0.01),
-        "epsilon_decay_period": 20000,
+        "epsilon_decay_period": 50000,
         "reward_scaling": 1,
         # "minibatch_size": initDict.get("minibatch_size", 64),
-        "hidden_layers": 50,
+        "hidden_layers": 100,
         "gamma": 0.99,
         # "tau": initDict.get("tau", 1.0),
         # "sigma": initDict.get("sigma", 0.01),
         "network_update_frequency": 100,
         # "episode_history_averaging": initDict.get("episode_history_averaging", 50),
-        "maximum_timesteps": 500,
+        "maximum_timesteps": 1000,
     }), double=True)
     dqn.run()
