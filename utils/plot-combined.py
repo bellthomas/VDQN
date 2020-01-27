@@ -8,6 +8,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import datetime as dt
 
+plt.rcParams['text.usetex'] = True
+plt.rcParams['text.latex.preamble'] = r'\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage{sfmath}\usepackage[T1]{fontenc}'
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 experiments = {}
 data_folder = "combined-data"
@@ -42,7 +45,7 @@ def generate_spline(xs, ys, errs):
     err = np.array(errs)
 
     x_vals = np.array(xs)
-    xnew = np.linspace(x_vals.min(), x_vals.max(), len(xs) // 3) 
+    xnew = np.linspace(x_vals.min(), x_vals.max(), len(xs) * 3) 
     # print(xnew)
     spl = make_interp_spline(x_vals, ys, k=2)  # type: BSpline
     spl_err = make_interp_spline(x_vals, err, k=2)  # type: BSpline
@@ -103,7 +106,7 @@ for exp in experiments:
 
 
 print("\nDrawing graphs...")
-graphs_dir = "{}/{}/".format(dir_path, graphs_folder)
+graphs_dir = "{}/{}".format(dir_path, graphs_folder)
 os.makedirs(graphs_dir, exist_ok=True)
 
 # exit()
@@ -117,17 +120,18 @@ colours = {
     "DVDQN": "purple"
 }
 indices = [
-    ("Reward", 3, False),
-    ("VI-Loss", 5, True),
-    ("Bellman-Loss", 6, True),
+    ("Reward", 3, False, "Reward"),
+    ("VI-Loss", 5, True, "VI\ Loss"),
+    ("Bellman-Loss", 6, True, "Bellman\ Loss"),
 ]
 for exp in experiments:
     print(exp)
     for to_plot in indices:
         experiment = experiments[exp]
-        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(10, 6), sharex=False, sharey=False)
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(8, 5), sharex=False, sharey=False)
         axes.margins(x=0)
-        axes.set_ylabel("${}$".format(to_plot[0]), fontsize=16)
+        # axes.ylim(top=140000)
+        axes.set_ylabel("${}$".format(to_plot[3]), fontsize=16)
         axes.set_xlabel("$Episodes$", fontsize=16)
 
         drawn = 0
@@ -153,7 +157,7 @@ for exp in experiments:
         if(drawn > 0):
             outdir = "{}/{}".format(graphs_dir, exp)
             os.makedirs(outdir, exist_ok=True)
-            plt.savefig("{}/{}.png".format(outdir, to_plot[0]), dpi=300)
-            print("   {}/{}.png ({} plots)".format(outdir, to_plot[0], drawn))
+            plt.savefig("{}/{}-wide.png".format(outdir, to_plot[0]), dpi=600)
+            print("   {}/{}-wide.png ({} plots)".format(outdir, to_plot[0], drawn))
 
         plt.close(fig)

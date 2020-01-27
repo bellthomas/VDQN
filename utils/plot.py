@@ -8,6 +8,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import datetime as dt
 
+plt.rcParams['text.usetex'] = True
+plt.rcParams['text.latex.preamble'] = r'\usepackage{libertine}\usepackage[libertine]{newtxmath}\usepackage{sfmath}\usepackage[T1]{fontenc}'
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 experiments = {}
 data_folder = "data"
@@ -155,7 +158,7 @@ for host in hosts:
             if(drawn > 0):
                 outdir = "{}/{}".format(graphs_dir, exp)
                 os.makedirs(outdir, exist_ok=True)
-                plt.savefig("{}/{}-{}.png".format(outdir, to_plot[0], hostname), dpi=300)
+                plt.savefig("{}/{}-{}.png".format(outdir, to_plot[0], hostname), dpi=600)
                 print("   {}/{}-{}.png ({} plots)".format(outdir, to_plot[0], hostname, drawn))
 
             plt.close(fig)
