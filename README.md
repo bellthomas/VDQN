@@ -1,6 +1,6 @@
 # Exploring Variational Deep Q Networks
 
-This study provides a research-ready implementation of Tang and Kucukelbir's Variational Deep Q Network, a novel approach to maximising the efficiency of exploration in complex learning environments using Variational Bayesian Inference, using the Edward PPL. Alongside reference implementations of both Traditional and Double Deep Q Networks, a small novel contribution is presented --- the Double Variational Deep Q Network, which incorporates improvements to increase the stability and robustness of inference-based learning. Finally, an evaluation and discussion of the effectiveness of these approaches is discussed in the wider context of Bayesian Deep Learning.
+This study provides a research-ready implementation of [Tang and Kucukelbir's Variational Deep Q Network](https://arxiv.org/abs/1711.11225), a novel approach to maximising the efficiency of exploration in complex learning environments using Variational Bayesian Inference, using the [Edward PPL](http://edwardlib.org/). Alongside reference implementations of both Traditional and Double Deep Q Networks, a small novel contribution is presented --- the Double Variational Deep Q Network, which incorporates improvements to increase the stability and robustness of inference-based learning. Finally, an evaluation and discussion of the effectiveness of these approaches is discussed in the wider context of Bayesian Deep Learning.
 
 The full report is available here: [Exploring VDQNs](https://github.com/HarriBellThomas/VDQN/blob/master/Exploring_VDQNs_Report.pdf).
 
